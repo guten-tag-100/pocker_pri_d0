@@ -1,0 +1,10 @@
+# bakeoff_v3 (stacked ensemble vs current) on sanitized features_v2
+# built sanitized features_v2 cache in 3s  X=(444, 250)
+
+config                       |  metrics
+CURRENT ET+HGB vote          | AP=0.8807 reward=0.7099 fpr=0.032 recall=0.527  (15s)
+LightGBM solo                | AP=0.8825 reward=0.7036 fpr=0.032 recall=0.505  (2s)
+XGBoost solo                 | AP=0.8796 reward=0.7018 fpr=0.032 recall=0.505  (7s)
+CatBoost solo                | AP=0.8866 reward=0.7135 fpr=0.032 recall=0.527  (33s)
+STACK5 -> LR meta            | AP=0.8857 reward=0.7160 fpr=0.032 recall=0.536  (240s)
+# DONE
