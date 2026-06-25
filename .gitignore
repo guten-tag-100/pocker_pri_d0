@@ -8,6 +8,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+synapse
+synapse/*
+tests
+tests/*
 validator_env
 validator_env/
 validator_env/*
@@ -21,7 +25,23 @@ runs/
 output.png
 .vscode/*
 flightplans/*
-model/*
+
+# --- poker44 ML miner (model/) ---------------------------------------------
+# Publish the model CODE + the trained artifact, but never the heavy/runtime
+# files (regeneratable benchmark cache, rotating backups, logs, derived caches,
+# and one-shot diagnostics). The serving artifact (model.pkl + meta.json) IS
+# tracked so the published repo matches what the miner serves.
+model/data_cache/
+model/artifacts_backups/
+model/artifacts_v1_backup/
+model/_san_cache.npz
+model/_san_cache_meta.json
+model/autopilot_history.jsonl
+model/live_diag.json
+model/live_payload_sample.json
+model/bakeoff_v2_results.txt
+model/*.log
+model/__pycache__/
 
 models/*
 runs/*
@@ -51,6 +71,15 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+
+poker44.egg-info
+poker44.egg-info/*
+
+docs
+docs/*
+
+hands_generator
+hands_generator/*
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
