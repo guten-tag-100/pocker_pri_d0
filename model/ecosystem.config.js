@@ -29,7 +29,12 @@ module.exports = {
         "--logging.debug",
         "--blacklist.force_validator_permit",
       ].join(" "),
-      env: { POKER44_REPO: REPO },
+      env: {
+        POKER44_REPO: REPO,
+        // public model identity for the compliance manifest (must match served files)
+        POKER44_MODEL_REPO_URL: "https://github.com/guten-tag-100/pocker44-v1",
+        POKER44_MODEL_REPO_COMMIT: "5938180fc2db3bd874d7f04f4f39821d3e2aba99",
+      },
       autorestart: true,
       max_restarts: 20,
       min_uptime: "30s",
