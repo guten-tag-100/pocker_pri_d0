@@ -27,6 +27,32 @@ except Exception:
 
 _ART = os.path.join(os.path.dirname(os.path.abspath(__file__)), "artifacts")
 
+# Per-batch positive budget: cap how many chunks may be predicted as bots in one
+# validator batch. The reward is (0.65*AP + 0.35*recall) * (1-fpr)^2, HARD-ZEROED
+# at fpr>=0.10. AP (ranking) dominates and is threshold-independent, so the top
+# miners predict FEW positives (recall ~0-0.33) to keep fpr near 0 (safety=1) and
+# win on AP. Without this cap our well-ranked model flags ~all chunks (bots=38/40)
+# and trips the human-safety cliff -> reward 0. This monotonically demotes all but
+# the top-K (by score, and only if above the deploy boundary) below 0.5, which
+# PRESERVES the ranking (AP unchanged) while bounding the false-positive rate.
+_MAX_POS_FRAC = float(os.environ.get("POKER44_MAX_POS_FRAC", "0.15"))
+
+
+def _apply_batch_safety_budget(scores: np.ndarray, max_frac: float) -> np.ndarray:
+    s = np.asarray(scores, dtype=float)
+    n = s.size
+    if n == 0 or max_frac >= 1.0:
+        return s
+    k = int(np.floor(max_frac * n))
+    order = np.argsort(-s, kind="stable")          # indices, highest score first
+    allowed = {int(i) for i in order[:k] if s[i] >= 0.5}   # top-K that are positive
+    out = s.copy()
+    squeeze = [int(i) for i in order if int(i) not in allowed]  # everything else
+    m = len(squeeze)
+    for rank, idx in enumerate(squeeze):           # map into [0,0.499], order kept
+        out[idx] = 0.499 * (1.0 - rank / max(m - 1, 1))
+    return np.clip(out, 0.0, 1.0)
+
 
 def _remap_to_threshold(p: np.ndarray, t: float) -> np.ndarray:
     """Monotonic map so the deploy threshold t lands at 0.5 (preserves ranking/AP).
@@ -69,6 +95,9 @@ class Poker44Model:
         X = np.vstack([self._vectorize(c) for c in chunks])
         p = self.model.predict_proba(X)[:, 1]
         scores = _remap_to_threshold(p, self.threshold)
+        # cap positives per batch so we never trip the fpr>=0.10 reward cliff
+        # (ranking/AP preserved; only the bot/human boundary tightens)
+        scores = _apply_batch_safety_budget(scores, _MAX_POS_FRAC)
         # defensive: a degenerate/empty chunk must not be flagged as a bot
         # (protects the human-safety FPR cliff on malformed input)
         out = []

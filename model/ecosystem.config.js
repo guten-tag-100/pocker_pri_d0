@@ -9,9 +9,19 @@
 //                            improved) restart the miner. autorestart:false +
 //                            cron_restart makes pm2 treat it as a scheduled job.
 
+const { execSync } = require("child_process");
+
 const PY = "/root/pocker/miner_env/bin/python";   // env that has bittensor + sklearn
 const REPO = "/root/pocker";                       // the actual subnet repo
 const MODEL = "/root/pocker/model";
+
+// Report the ACTUAL git HEAD of the repo as the manifest repo_commit, so the
+// published commit always matches the served code (no hardcoded-hash drift,
+// no self-referential chicken-and-egg). Whatever commit is checked out + pushed
+// is what the miner advertises.
+let REPO_COMMIT = "";
+try { REPO_COMMIT = execSync(`git -C ${REPO} rev-parse HEAD`).toString().trim(); }
+catch (e) { REPO_COMMIT = ""; }
 
 module.exports = {
   apps: [
@@ -33,7 +43,7 @@ module.exports = {
         POKER44_REPO: REPO,
         // public model identity for the compliance manifest (must match served files)
         POKER44_MODEL_REPO_URL: "https://github.com/guten-tag-100/pocker44-v1",
-        POKER44_MODEL_REPO_COMMIT: "5938180fc2db3bd874d7f04f4f39821d3e2aba99",
+        POKER44_MODEL_REPO_COMMIT: REPO_COMMIT,
       },
       autorestart: true,
       max_restarts: 20,
