@@ -191,14 +191,26 @@ def config(cls) -> bt.Config:
     parser = argparse.ArgumentParser()
     cls.add_args(parser)
     cfg = bt.Config(parser=parser)
-    # bittensor's Config does not nest custom dotted args (e.g. --neuron.*) into
-    # sub-namespaces, so build the neuron namespace explicitly from the parsed args.
+    # bittensor 10.x's Config(parser=...) only captures its OWN args (subtensor/
+    # wallet/axon/logging) and drops the repo's custom args -- both top-level
+    # (--netuid) and dotted (--neuron.*). Without this, config.netuid is None
+    # (=> metagraph(None) WASM-traps) and config.neuron is None. Merge the full
+    # parsed namespace back in, nesting dotted names into sub-configs.
     ns, _ = parser.parse_known_args()
-    neuron = bt.Config()
     for k, v in vars(ns).items():
-        if k.startswith("neuron."):
-            setattr(neuron, k.split(".", 1)[1], v)
-    if getattr(neuron, "name", None) is None:
-        neuron.name = "miner"
-    cfg.neuron = neuron
+        if v is None:
+            continue
+        if "." in k:
+            head, tail = k.split(".", 1)
+            sub = cfg.get(head)
+            if sub is None:
+                sub = bt.Config()
+                setattr(cfg, head, sub)
+            setattr(sub, tail, v)          # override: use the actually-parsed CLI value
+        else:
+            setattr(cfg, k, v)             # override (e.g. --netuid)
+    if cfg.get("neuron") is None:
+        cfg.neuron = bt.Config()
+    if getattr(cfg.neuron, "name", None) is None:
+        cfg.neuron.name = "miner"
     return cfg
