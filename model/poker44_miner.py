@@ -54,7 +54,7 @@ class MLMiner(BaseMinerNeuron):
                 Path(MODEL_DIR) / "artifacts" / "meta.json",
             ],
             defaults={
-                "model_name": "poker44-behavioral-v2",
+                "model_name": os.environ.get("POKER44_MODEL_NAME", "poker44-d0"),
                 "model_version": "2.0",
                 "framework": "scikit-learn-extratrees-histgbm-ensemble",
                 "license": "MIT",
