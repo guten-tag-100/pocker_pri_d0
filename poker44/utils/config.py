@@ -190,4 +190,15 @@ def check_config(cls, config: "bt.Config"):
 def config(cls) -> bt.Config:
     parser = argparse.ArgumentParser()
     cls.add_args(parser)
-    return bt.Config(parser=parser)
+    cfg = bt.Config(parser=parser)
+    # bittensor's Config does not nest custom dotted args (e.g. --neuron.*) into
+    # sub-namespaces, so build the neuron namespace explicitly from the parsed args.
+    ns, _ = parser.parse_known_args()
+    neuron = bt.Config()
+    for k, v in vars(ns).items():
+        if k.startswith("neuron."):
+            setattr(neuron, k.split(".", 1)[1], v)
+    if getattr(neuron, "name", None) is None:
+        neuron.name = "miner"
+    cfg.neuron = neuron
+    return cfg
