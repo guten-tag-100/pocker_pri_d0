@@ -234,7 +234,7 @@ def feature_names_v2(hands: List[Dict[str, Any]]) -> List[str]:
 
 if __name__ == "__main__":
     import sys
-    sys.path.insert(0, "/root/pocker")
+    sys.path.insert(0, "/root/my_pocker/pocker_d0")
     from dataset import load_examples
     from poker44.validator.payload_view import prepare_hand_for_miner
 

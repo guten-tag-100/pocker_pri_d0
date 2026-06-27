@@ -66,7 +66,7 @@ module.exports = {
       cwd: MODEL,
       env: { POKER44_REPO: REPO, POKER44_MINER_PM2: "poker44_miner_d0" },
       autorestart: false,
-      cron_restart: "10 0 * * *",
+      cron_restart: "16 0 * * *",
     },
   ],
 };

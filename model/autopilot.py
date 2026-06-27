@@ -156,7 +156,7 @@ def retrain_and_guard(force_deploy: bool) -> bool:
 
     proc = subprocess.run([PY, os.path.join(HERE, "train_final_v2.py")],
                           cwd=HERE, capture_output=True, text=True,
-                          env={**os.environ, "POKER44_REPO": "/root/pocker",
+                          env={**os.environ, "POKER44_REPO": "/root/my_pocker/pocker_d0",
                                "PYTHONUNBUFFERED": "1"})
     if proc.returncode != 0:
         log(f"RETRAIN: train_final.py FAILED rc={proc.returncode}")

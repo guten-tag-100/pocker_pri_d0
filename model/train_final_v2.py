@@ -24,7 +24,7 @@ from sklearn.ensemble import (ExtraTreesClassifier, HistGradientBoostingClassifi
 from sklearn.metrics import average_precision_score, roc_auc_score
 from sklearn.model_selection import GroupKFold, cross_val_predict
 
-sys.path.insert(0, "/root/pocker")
+sys.path.insert(0, "/root/my_pocker/pocker_d0")
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from poker44.validator.payload_view import prepare_hand_for_miner  # noqa: E402

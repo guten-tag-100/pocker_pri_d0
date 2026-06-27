@@ -6,7 +6,7 @@ Writes a leaderboard to bakeoff_v3_results.txt. Run in background.
 """
 import os, sys, time, json
 import numpy as np, pandas as pd
-sys.path.insert(0, "/root/pocker"); sys.path.insert(0, "/root/pocker/model")
+sys.path.insert(0, "/root/my_pocker/pocker_d0"); sys.path.insert(0, "/root/pocker/model")
 from poker44.validator.payload_view import prepare_hand_for_miner
 from dataset import load_examples
 from features_v2 import extract_features_v2
